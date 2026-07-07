@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Adjuster's Desk — PSI P&C Exam Drill</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root{
+    --ledger: #1c2b2e;
+    --ledger-2: #223a3d;
+    --paper: #f3ecd9;
+    --paper-dim: #e7dcc0;
+    --ink: #241d15;
+    --brass: #c19a49;
+    --brass-bright: #d9b45f;
+    --stamp-green: #4f7a5c;
+    --stamp-red: #a64b3f;
+    --rule: rgba(36,29,21,0.18);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse at top left, rgba(255,255,255,0.03), transparent 60%),
+      var(--ledger);
+    color:var(--paper);
+    font-family:'Source Sans 3', sans-serif;
+    min-height:100vh;
+    padding:32px 16px 80px;
+  }
+  .wrap{max-width:840px;margin:0 auto;}
+
+  /* header */
+  header{
+    text-align:center;
+    margin-bottom:28px;
+  }
+  .kicker{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--brass-bright);
+    margin-bottom:10px;
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size:clamp(30px,5vw,46px);
+    margin:0 0 6px;
+    color:var(--paper);
+    letter-spacing:-0.01em;
+  }
+  .subhead{
+    color:var(--paper-dim);
+    opacity:.75;
+    font-size:14.5px;
+    max-width:520px;
+    margin:0 auto;
+  }
+
+  /* progress ledger strip */
+  .ledger-strip{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:var(--ledger-2);
+    border:1px solid rgba(193,154,73,0.3);
+    border-radius:10px;
+    padding:12px 18px;
+    margin:22px 0;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12.5px;
+    color:var(--paper-dim);
+  }
+  .ledger-strip .score{color:var(--brass-bright); font-weight:600;}
+  .track{
+    flex:1;
+    height:6px;
+    margin:0 16px;
+    background:rgba(255,255,255,0.08);
+    border-radius:4px;
+    overflow:hidden;
+  }
+  .track-fill{
+    height:100%;
+    background:linear-gradient(90deg, var(--brass), var(--brass-bright));
+    width:0%;
+    transition:width .4s ease;
+  }
+
+  /* category filter chips */
+  .chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:22px;
+    justify-content:center;
+  }
+  .chip{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    padding:6px 12px;
+    border-radius:999px;
+    border:1px solid rgba(243,236,217,0.25);
+    background:transparent;
+    color:var(--paper-dim);
+    cursor:pointer;
+    transition:.15s;
+  }
+  .chip:hover{border-color:var(--brass-bright); color:var(--paper);}
+  .chip.active{background:var(--brass); border-color:var(--brass); color:var(--ink); font-weight:600;}
+
+  /* the ticket / card */
+  .ticket{
+    position:relative;
+    background:var(--paper);
+    color:var(--ink);
+    border-radius:14px;
+    padding:30px 30px 26px;
+    box-shadow:0 20px 50px rgba(0,0,0,0.35);
+  }
+  .ticket::before, .ticket::after{
+    content:"";
+    position:absolute;
+    top:50%;
+    width:26px; height:26px;
+    background:var(--ledger);
+    border-radius:50%;
+    transform:translateY(-50%);
+  }
+  .ticket::before{left:-13px;}
+  .ticket::after{right:-13px;}
+
+  .q-meta{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--stamp-green);
+    margin-bottom:14px;
+    padding-bottom:14px;
+    border-bottom:1px dashed var(--rule);
+  }
+  .q-num{color:var(--brass);}
+  .q-cat{opacity:.8;}
+
+  .q-text{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:20px;
+    line-height:1.4;
+    margin:0 0 20px;
+  }
+
+  .choices{display:flex; flex-direction:column; gap:10px;}
+  .choice{
+    text-align:left;
+    background:#fffdf7;
+    border:1.5px solid rgba(36,29,21,0.16);
+    border-radius:9px;
+    padding:13px 16px;
+    font-size:15px;
+    color:var(--ink);
+    cursor:pointer;
+    font-family:'Source Sans 3', sans-serif;
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+    transition:.12s;
+  }
+  .choice:hover:not(.locked){border-color:var(--brass); background:#fff9ec;}
+  .choice .letter{
+    font-family:'JetBrains Mono', monospace;
+    font-weight:700;
+    color:var(--brass);
+    flex-shrink:0;
+  }
+  .choice.correct{background:#e7f0e6; border-color:var(--stamp-green);}
+  .choice.correct .letter{color:var(--stamp-green);}
+  .choice.wrong{background:#f5e5e2; border-color:var(--stamp-red);}
+  .choice.wrong .letter{color:var(--stamp-red);}
+  .choice.locked{cursor:default;}
+  .choice.dim{opacity:.55;}
+
+  /* hint */
+  .hint-row{margin-top:16px;}
+  .hint-btn{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    background:none;
+    border:1px dashed var(--brass);
+    color:#7a5f22;
+    padding:7px 14px;
+    border-radius:7px;
+    cursor:pointer;
+  }
+  .hint-btn:hover{background:rgba(193,154,73,0.12);}
+  .hint-box{
+    margin-top:10px;
+    background:#fdf3d9;
+    border-left:3px solid var(--brass);
+    padding:10px 14px;
+    font-size:13.5px;
+    border-radius:0 8px 8px 0;
+    display:none;
+  }
+  .hint-box.show{display:block;}
+
+  /* explanation */
+  .explain{
+    margin-top:18px;
+    padding-top:16px;
+    border-top:1px dashed var(--rule);
+    display:none;
+  }
+  .explain.show{display:block; animation:fade .3s ease;}
+  @keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+  .verdict{
+    font-family:'JetBrains Mono', monospace;
+    font-weight:700;
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    margin-bottom:8px;
+  }
+  .verdict.right{color:var(--stamp-green);}
+  .verdict.wrong{color:var(--stamp-red);}
+  .explain p{margin:0 0 10px; font-size:14.5px; line-height:1.55;}
+  .key-takeaway{
+    font-size:13.5px;
+    background:#eef1e6;
+    border-radius:8px;
+    padding:10px 14px;
+    font-weight:600;
+  }
+
+  .nav-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:22px;
+  }
+  .nav-btn{
+    font-family:'Source Sans 3', sans-serif;
+    font-weight:700;
+    font-size:14.5px;
+    background:var(--ink);
+    color:var(--paper);
+    border:none;
+    padding:12px 22px;
+    border-radius:8px;
+    cursor:pointer;
+    transition:.15s;
+  }
+  .nav-btn:hover{background:#3a2f21;}
+  .nav-btn:disabled{opacity:.35; cursor:not-allowed;}
+  .nav-btn.ghost{
+    background:transparent;
+    border:1.5px solid var(--ink);
+    color:var(--ink);
+  }
+
+  /* results screen */
+  .results{text-align:center; padding:20px 10px 6px;}
+  .results .big{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size:56px;
+    color:var(--brass);
+    line-height:1;
+  }
+  .results .msg{font-size:16px; margin:10px 0 22px; color:var(--ink);}
+  .breakdown{
+    text-align:left;
+    background:#fffdf7;
+    border:1px solid rgba(36,29,21,0.15);
+    border-radius:10px;
+    padding:16px 18px;
+    margin-bottom:20px;
+    font-size:13.5px;
+  }
+  .breakdown-row{
+    display:flex;
+    justify-content:space-between;
+    padding:6px 0;
+    border-bottom:1px dashed var(--rule);
+  }
+  .breakdown-row:last-child{border-bottom:none;}
+
+  footer{
+    text-align:center;
+    margin-top:34px;
+    font-size:12px;
+    color:var(--paper-dim);
+    opacity:.55;
+  }
+
+  @media (max-width:600px){
+    .ticket{padding:24px 18px 20px;}
+    .q-text{font-size:18px;}
+    .ledger-strip{flex-wrap:wrap; gap:8px;}
+    .track{order:3; width:100%; margin:6px 0 0;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="kicker">PA · P&C Licensing Exam Prep</div>
+    <h1>The Adjuster's Desk</h1>
+    <p class="subhead">Built around your 7/7 PSI score report (54.40%, 68/125). Weakest spots: Commercial Property (27%), Commercial General Liability (35%), Dwelling Policy (33%), Personal Auto Policy (41%), Homeowners (43%), Workers' Comp (33%). Pull a hint if you're stuck — no penalty for asking.</p>
+  </header>
+
+  <div class="ledger-strip">
+    <span>Question <span id="posLabel">1</span> / <span id="totalLabel">1</span></span>
+    <div class="track"><div class="track-fill" id="trackFill"></div></div>
+    <span>Score: <span class="score" id="scoreLabel">0 / 0</span></span>
+  </div>
+
+  <div class="chips" id="chips"></div>
+
+  <div class="ticket" id="ticket">
+    <!-- injected by JS -->
+  </div>
+
+  <footer>Built from your missed-question drills · Coverage A–F, Dwelling Forms, Commercial Property, Bonds, Contract Law &amp; more</footer>
+</div>
+
+<script>
+const QUESTIONS = [
+// ---------------- HOMEOWNERS COVERAGES ----------------
+{cat:"HO Coverages", q:"A homeowners policy insures the dwelling (Coverage A) for $200,000. What is the automatic Coverage C (Personal Property) limit?",
+choices:["$20,000","$60,000","$100,000","$200,000"], correct:2,
+hint:"Coverage C defaults to a set percentage of Coverage A. Think 50%.",
+explain:"Coverage C is automatically set at 50% of Coverage A. $200,000 × 50% = $100,000.",
+key:"Coverage C = 50% of Coverage A, automatically."},
+
+{cat:"HO Coverages", q:"Which homeowners coverage requires the loss to occur ON the residence premises to be covered?",
+choices:["Coverage B — Other Structures","Coverage C — Personal Property","Coverage E — Personal Liability","Coverage F — Medical Payments"], correct:0,
+hint:"This coverage protects detached structures like a garage or fence — think physical location.",
+explain:"Coverage B covers structures physically located on the residence premises. Coverage C has worldwide territorial limits, and Coverage E/F apply to occurrences anywhere.",
+key:"Coverage B = on-premises only. C, E, and F are not limited to the premises."},
+
+{cat:"HO Coverages", q:"What is the maximum a standard, unendorsed homeowners policy pays for theft of cash?",
+choices:["$100","$200","$500","$1,000"], correct:1,
+hint:"It's the lowest of the special limits — designed to deter fraud.",
+explain:"Cash/money has a special Coverage C limit of $200, regardless of the actual amount lost, to prevent abuse.",
+key:"Cash special limit = $200, no exceptions without endorsement."},
+
+{cat:"HO Coverages", q:"An unendorsed HO policy will pay a maximum of how much for the theft of a firearm?",
+choices:["$1,000","$1,500","$2,500","No limit"], correct:2,
+hint:"This is a bigger number than the jewelry/furs theft limit.",
+explain:"Firearms have a special theft limit of $2,500 under Coverage C. Jewelry and furs are capped lower, at $1,500 (theft only).",
+key:"Firearms theft = $2,500. Jewelry/furs theft = $1,500."},
+
+{cat:"HO Coverages", q:"Which of these CANNOT be added to a homeowners policy by endorsement?",
+choices:["Earthquake coverage","Home business equipment","Household pets/animals","Ordinance or law compliance costs"], correct:2,
+hint:"Man's best friend isn't insurable property, no matter what you ask for.",
+explain:"Household animals are excluded from Coverage C and cannot be added by endorsement. Earthquake, home business equipment, and ordinance/law coverage can all be endorsed on.",
+key:"Pets can never be added to a homeowners policy by endorsement."},
+
+{cat:"HO Coverages", q:"Under Coverage C, which item is NOT subject to any special dollar sublimit?",
+choices:["Jewelry (theft)","Cash","Computers/electronics","Firearms (theft)"], correct:2,
+hint:"TVs and computers just use the regular Coverage C limit.",
+explain:"Computers and audio/visual equipment fall under the full Coverage C limit with no special sublimit, unlike cash, jewelry, and firearms which are capped.",
+key:"Electronics use the full Coverage C limit — no special sublimit applies."},
+
+{cat:"HO Coverages", q:"Which statement about Coverage C claim settlement is FALSE?",
+choices:["Claims settle on an Actual Cash Value basis by default","Claims settle on a Replacement Cost basis automatically","Territorial limits are worldwide","Limits can be increased above the default percentage"], correct:1,
+hint:"You need to buy something extra to get 'new for old' on your stuff.",
+explain:"Coverage C settles on an Actual Cash Value (ACV) basis — not Replacement Cost — unless a Replacement Cost endorsement is purchased.",
+key:"Coverage C = ACV by default. RC requires an endorsement."},
+
+{cat:"HO Coverages", q:"Eve's $11,000 designer coat is stolen. Her HO-3 has a $1,000 deductible and no special sublimit applies to designer clothing. What does she receive?",
+choices:["$1,500 (fur limit)","$10,000","$11,000","$500"], correct:1,
+hint:"Designer clothing isn't fur — so no theft sublimit kicks in. Just subtract the deductible.",
+explain:"There's no special limit for designer clothing (only furs get the $1,500 theft cap). Payout = $11,000 − $1,000 deductible = $10,000.",
+key:"No special limit applies to ordinary (non-fur) clothing — pay loss minus deductible."},
+
+{cat:"HO Coverages", q:"A gun collection worth $6,800 is stolen. The HO-3 has a $500 deductible and a $100,000 Coverage C limit. How much is paid?",
+choices:["$6,300","$6,800","$2,500","$2,000"], correct:2,
+hint:"Compare the special limit to the loss BEFORE applying any deductible.",
+explain:"The firearms theft special limit ($2,500) is lower than the loss ($6,800), so the special limit controls. The deductible doesn't reduce it further in this scenario — the cap already applies.",
+key:"When a special limit applies, compare it to the loss first — the lower amount wins."},
+
+// ---------------- HO FORMS ----------------
+{cat:"HO Forms", q:"Which homeowners form provides NO Coverage A (Dwelling) at all?",
+choices:["HO-2","HO-3","HO-4","HO-6"], correct:2,
+hint:"This is the renter's policy — they don't own the building.",
+explain:"HO-4 (Tenants/Renters) has no insurable interest in the building, so it has no Coverage A. Its principal coverage is Coverage C.",
+key:"HO-4 = no Coverage A. Principal coverage is Coverage C (personal property)."},
+
+{cat:"HO Forms", q:"What is the standard Coverage A amount on an HO-6 (condo/co-op) policy?",
+choices:["$500","$1,000","$5,000","10% of Coverage C"], correct:1,
+hint:"A small, specific dollar figure for interior walls/floors, not a percentage.",
+explain:"HO-6 provides a standard $1,000 of Coverage A for interior structures the unit owner is responsible for. The building itself is covered by the condo association's master policy.",
+key:"HO-6 standard Coverage A = $1,000 (higher limits available on request)."},
+
+{cat:"HO Forms", q:"Which is the MOST comprehensive homeowners form, with open perils on BOTH the dwelling and personal property?",
+choices:["HO-2","HO-3","HO-5","HO-8"], correct:2,
+hint:"HO-3 is open perils on the dwelling only — this one goes further.",
+explain:"HO-5 provides open perils coverage on both the dwelling (Coverage A) and personal property (Coverage C), making it the broadest standard form.",
+key:"HO-5 = open perils on dwelling AND contents. Most comprehensive form."},
+
+{cat:"HO Forms", q:"Which peril tier does an HO-2 provide?",
+choices:["Basic (named) perils only","Broad (named) perils","Open perils on dwelling only","Open perils on dwelling and contents"], correct:1,
+hint:"Think 'Broad Form' — a longer named-perils list than Basic, but still not open perils.",
+explain:"HO-2 is the Broad Form — it covers a longer list of named perils than Basic but does not provide open-perils (all-risk) coverage like HO-3 or HO-5.",
+key:"HO-2 = Broad Form named perils. HO-3 = open perils on dwelling. HO-5 = open perils on everything."},
+
+{cat:"HO Forms", q:"Which homeowners form does NOT cover water damage from bursting pipes?",
+choices:["HO-2","HO-3","HO-5","HO-8"], correct:3,
+hint:"This form is for older or historic homes and pays Actual Cash Value.",
+explain:"HO-8 (Modified/Older Homes) does not cover bursting pipes/water damage. HO-2, HO-3, and HO-5 all do.",
+key:"HO-8 excludes bursting-pipe water damage — unique among the HO forms."},
+
+{cat:"HO Forms", q:"Collapse is best described as which of the following under an HO-2?",
+choices:["A Broad Peril itself","An Additional Coverage that tags along with Broad Perils","A Special Form open peril","Not covered under any HO form"], correct:1,
+hint:"It rides along with the Broad Perils list but isn't technically one of them.",
+explain:"Collapse is an Additional Coverage, not one of the named Broad Perils. Volcanic action, sprinkler leakage, and sinkhole collapse ARE actual Broad Perils.",
+key:"Collapse = Additional Coverage, not a Broad Peril in its own right."},
+
+{cat:"HO Forms", q:"Under HO-3, a 12-year-old intentionally throws a rock through a neighbor's window. What happens?",
+choices:["Covered — under age of reason (13)","Not covered — any intentional act by an insured is excluded regardless of age","Covered under Coverage F only","Denied because the son isn't the named insured"], correct:0,
+hint:"There's an age threshold that matters here — think 'age of reason.'",
+explain:"HO-3 policies generally cover intentional acts by a resident relative under age 13, since a young child is considered below the age of reason. At 13+, intentional acts are usually excluded.",
+key:"Under 13 = usually covered (age of reason). 13+ = usually excluded."},
+
+// ---------------- DWELLING POLICIES ----------------
+{cat:"Dwelling Policy", q:"Which Dwelling Policy form provides open perils coverage on the dwelling itself?",
+choices:["DP-1","DP-2","DP-3","DP-4 (doesn't exist)"], correct:2,
+hint:"It's the 'Special Form' of the dwelling series — same idea as HO-3's dwelling coverage.",
+explain:"DP-3 (Special Form) provides open perils on the dwelling — covered unless specifically excluded. DP-1 and DP-2 are both named-perils forms. DP-4 is a trick answer; it doesn't exist.",
+key:"DP-3 = open perils on the dwelling. DP-1/DP-2 = named perils only."},
+
+{cat:"Dwelling Policy", q:"A homeowner's DP-3 policy — does it cover a stolen, permanently-affixed outdoor A/C condenser unit?",
+choices:["No, dwelling policies never cover theft","Yes — it's part of the dwelling, and DP-3's open perils covers theft unless excluded","Only if scheduled separately","Yes, but only under DP-2"], correct:1,
+hint:"Something permanently attached to the house is treated as part of the dwelling itself.",
+explain:"The condenser is permanently affixed to the dwelling, so it's part of the structure. DP-3's open perils covers theft of it unless specifically excluded. DP-2 would NOT cover this.",
+key:"DP-3 covers theft of permanently affixed equipment; DP-2 does not."},
+
+{cat:"Dwelling Policy", q:"Rhonda's DP-3 dog bites a neighbor who sues her. Is this covered?",
+choices:["Yes, under Coverage E","No — dwelling policies have no liability coverage unless endorsed","Yes, under the Fire Legal Liability provision","No, only medical payments apply"], correct:1,
+hint:"Dwelling policies focus on the property itself — liability is a different animal entirely.",
+explain:"An unendorsed dwelling policy provides no liability coverage. Rhonda would need a homeowners (HO) policy, or a liability endorsement, to be covered for the dog bite lawsuit.",
+key:"Dwelling policies (DP) have NO built-in liability coverage."},
+
+{cat:"Dwelling Policy", q:"The Automatic Increase Endorsement on a dwelling policy applies to which coverage(s)?",
+choices:["Coverage C only","Coverage A and B only","Coverage A, B, C, and D","Coverage D only"], correct:1,
+hint:"It only bumps up the parts tied to construction costs — not the yard, not the contents.",
+explain:"The Automatic Increase Endorsement only applies to Coverage A (Dwelling) and Coverage B (Other Structures), since these are most affected by rising construction costs. It does not apply to personal property (C) or fair rental value (D).",
+key:"Auto-Increase Endorsement = Coverage A and B ONLY."},
+
+{cat:"Dwelling Policy", q:"On a DP-1 (Basic Form), which peril is covered without needing an endorsement?",
+choices:["Windstorm or hail","Vandalism","Fire and lightning","Theft"], correct:2,
+hint:"This is the shortest possible list — only 3 things, always included.",
+explain:"DP-1 automatically covers only Fire, Lightning, and Internal Explosion. Wind, hail, smoke, riot, vandalism, and aircraft/vehicles require Extended Coverage endorsements — and theft is never covered under DP-1.",
+key:"DP-1 baseline = Fire, Lightning, Internal Explosion only."},
+
+// ---------------- COVERAGE E / F ----------------
+{cat:"Coverage E/F", q:"Coverage F (Medical Payments to Others) pays under which condition?",
+choices:["Only if the insured is legally at fault","Regardless of fault, as long as the injury happened on the property (with some off-premises exceptions)","Only for the insured's own injuries","Only if a lawsuit has been filed"], correct:1,
+hint:"Think of it as a 'goodwill' payment meant to stop small injuries from becoming lawsuits.",
+explain:"Coverage F pays medical bills regardless of fault, to help injured parties quickly and reduce the odds of a lawsuit. It generally applies on-premises, with limited off-premises exceptions (e.g., a resident employee).",
+key:"Coverage F = no-fault, fast medical payment. Coverage E = fault-based liability."},
+
+{cat:"Coverage E/F", q:"Vincent trips at Ed's home, and Ed's Coverage F pays a $500 urgent care bill. Vincent later sues and a jury awards him $5,000. How much does Ed's insurer pay on the lawsuit?",
+choices:["$5,000","$5,500","$4,500","$500"], correct:2,
+hint:"The insurer doesn't pay for the same medical bill twice.",
+explain:"The $500 already paid under Coverage F is subtracted from the $5,000 jury award, since insurers don't double-pay for the same bill. $5,000 − $500 = $4,500, paid from Coverage E.",
+key:"If Coverage F already paid, subtract that amount from any later Coverage E lawsuit payout."},
+
+{cat:"Coverage E/F", q:"Tom's pit bull kills a neighbor's dog; the owner sues and wins a $120,000 judgment, with $25,000 in defense costs. Tom's Coverage E limit is $100,000. What does the insurer pay in total?",
+choices:["$100,000","$120,000","$125,000","$145,000"], correct:2,
+hint:"Defense costs are usually paid on top of the liability limit, not out of it.",
+explain:"The insurer pays the $100,000 liability limit PLUS the $25,000 defense costs on top, since defense costs are typically paid in addition to the policy limit. Total = $125,000.",
+key:"Defense costs (attorney fees) are usually paid ON TOP of the Coverage E limit."},
+
+{cat:"Coverage E/F", q:"Which of these is NOT covered by Coverage F?",
+choices:["Ambulance costs","Dental work","Pain and suffering","Doctor visits"], correct:2,
+hint:"F pays medical bills — not the emotional/legal damages that come with a lawsuit.",
+explain:"Coverage F does not cover pain and suffering, punitive damages, or loss of consortium. It does cover actual medical costs like ambulance, dental, doctor visits, and surgery.",
+key:"Coverage F pays medical bills only — never pain and suffering or punitive damages."},
+
+// ---------------- COMMERCIAL PROPERTY ----------------
+{cat:"Commercial Property", q:"Which Commercial Property Cause of Loss form is the MINIMUM required to cover theft?",
+choices:["Basic","Broad","Special","None cover theft"], correct:2,
+hint:"Unlike homeowners forms, theft is a 'premium' peril in commercial lines.",
+explain:"In commercial property, theft is only covered under the Special (open perils) form. Neither Basic nor Broad cover theft — this differs from homeowners, where even HO-1 (Basic) covers theft.",
+key:"Commercial Property theft coverage: Special form ONLY. Basic and Broad do NOT cover theft."},
+
+{cat:"Commercial Property", q:"Juan has a Basic Cause of Loss form. A falling tree limb damages his building. Is it covered?",
+choices:["Yes, falling objects are a Basic peril","No — falling objects are a Broad Form peril, not Basic","Yes, but only up to $500","No, falling objects are never covered"], correct:1,
+hint:"Falling objects show up one tier higher than Basic.",
+explain:"Falling objects, weight of ice/snow/sleet, and water damage from appliances are Broad Form perils — not included in Basic. Juan's Basic form would not cover this loss.",
+key:"Falling objects = Broad Form peril, NOT covered under Basic."},
+
+{cat:"Commercial Property", q:"What does Equipment Breakdown Coverage NOT include?",
+choices:["Property damage to the broken equipment","Business income loss from the breakdown","Spoilage of perishable goods","Business liability for third-party injuries"], correct:3,
+hint:"Liability for hurting someone else is a completely separate kind of coverage.",
+explain:"Equipment Breakdown covers property damage, business income loss, spoilage, and extra expense — but NOT business liability, which requires its own separate policy.",
+key:"Equipment Breakdown = property + income + spoilage + extra expense. NOT liability."},
+
+{cat:"Commercial Property", q:"What is the 'Period of Restoration' for Business Income coverage?",
+choices:["From when rebuilding starts to when it's finished","From the date of loss to when the business is/should be ready to resume operations","From reopening to returning to normal income levels","From the date of loss to the date benefits are first paid"], correct:1,
+hint:"The clock starts at the moment of the loss — not when hammers start swinging.",
+explain:"Period of Restoration runs from the DATE OF LOSS to when the business is (or should be) ready to resume operations. It's not tied to when construction begins or when payments are made.",
+key:"Period of Restoration = Date of Loss → Ready to Resume Operations."},
+
+{cat:"Commercial Property", q:"Which coverage pays for lost net income when a business must close due to a covered loss?",
+choices:["Extra Expense","Business Income","Inflation Guard","Concurrent Causation"], correct:1,
+hint:"This one replaces the revenue you're NOT earning while closed.",
+explain:"Business Income replaces lost revenue while the business can't operate. Extra Expense instead pays additional costs to keep operating or reopen faster — a different purpose entirely.",
+key:"Business Income = replaces lost revenue. Extra Expense = pays extra costs to stay open."},
+
+{cat:"Commercial Property", q:"Building materials for a construction project (Builders Risk) are covered if located within how many feet of the premises?",
+choices:["20 feet","40 feet","75 feet","100 feet"], correct:3,
+hint:"It's a three-digit number — the biggest option on the list.",
+explain:"Builders Risk covers materials and supplies within 100 feet of the insured premises. Materials farther away may not be covered.",
+key:"Builders Risk material radius = 100 feet."},
+
+{cat:"Commercial Property", q:"Under Commercial Property, if a building is vacant 60+ consecutive days, which peril remains covered (with fire getting a 15% payout reduction)?",
+choices:["Theft","Vandalism","Sprinkler Leakage","Riot"], correct:3,
+hint:"Remember: the 'R' in this word also stands for 'Remains' covered.",
+explain:"During extended vacancy, Theft, Vandalism, and Sprinkler Leakage are excluded. Riot remains covered, and Fire remains covered but with a 15% reduction in the payout.",
+key:"Vacancy 60+ days: Theft/Vandalism/Sprinkler Leakage excluded. Riot stays; Fire pays 85%."},
+
+{cat:"Commercial Property", q:"How is $1,000 of cash destroyed by fire handled under a Commercial Property policy?",
+choices:["Covered up to $200 (like Homeowners)","Covered up to $500","Covered without limit","Cash is excluded entirely"], correct:3,
+hint:"This is different from homeowners — don't import that $200 number here.",
+explain:"Commercial Property policies exclude cash losses entirely. The $200 cash limit is a Homeowners concept, not Commercial Property.",
+key:"Commercial Property = cash EXCLUDED (not the HO $200 limit)."},
+
+{cat:"Commercial Property", q:"What must a business do to unlock Coverage Extensions under the Building & Business Personal Property form?",
+choices:["Nothing — they're automatic","Pay an extra premium","Select at least 80% coinsurance","Purchase a Replacement Cost endorsement"], correct:2,
+hint:"This is different from 'Additional Coverages,' which need nothing extra.",
+explain:"Coverage Extensions must be earned by maintaining at least 80% coinsurance. Additional Coverages (like fire dept. service charge and debris removal), by contrast, are automatic.",
+key:"Extensions = earned via 80%+ coinsurance. Additions = automatic, no action needed."},
+
+{cat:"Commercial Property", q:"Skip's shop has a fire: $10,000 building damage, $20,000 contents damage, and $1,000 in debris removal. Deductible is $500. Maximum payout?",
+choices:["$29,500","$30,000","$30,500","$31,000"], correct:2,
+hint:"Add every loss component first — including debris removal — THEN subtract the deductible.",
+explain:"Total loss = $10,000 + $20,000 + $1,000 (debris) = $31,000. Subtract the $500 deductible: $31,000 − $500 = $30,500.",
+key:"Add ALL loss components (including debris removal), then subtract the deductible."},
+
+{cat:"Commercial Property", q:"Care, custody, and control property (like a dry cleaner's customer clothing) is covered under which policy?",
+choices:["Commercial General Liability (CGL)","Commercial Property","Fidelity Bond","Surety Bond"], correct:1,
+hint:"CGL specifically excludes this category — think about who's left to cover it.",
+explain:"Commercial Property covers property of others in the business's care, custody, and control, since the business is legally responsible for it. CGL specifically excludes this category.",
+key:"Care/custody/control property = Commercial Property covers it. CGL explicitly excludes it."},
+
+// ---------------- BOP ----------------
+{cat:"BOP", q:"Which business would typically be INELIGIBLE for a Businessowners Policy (BOP)?",
+choices:["A small barber shop","A local retail boutique","A bank","A small service-based office"], correct:2,
+hint:"Think 'small and low-risk' — this option is neither.",
+explain:"BOPs are designed for small, low-risk businesses. Banks, auto body shops, theaters, bars, and large manufacturers are all ineligible.",
+key:"BOP = small, low-risk businesses only. No banks, big manufacturers, bars, or auto body shops."},
+
+{cat:"BOP", q:"Does a Businessowners Policy (BOP) have a coinsurance requirement?",
+choices:["Yes, just like a Commercial Package Policy","No — it encourages 80% insure-to-value instead of a coinsurance penalty","Yes, but only for liability","No, but it requires a $1,000 deductible minimum"], correct:1,
+hint:"BOP is more policyholder-friendly than a standard Commercial Property/CPP setup.",
+explain:"A BOP has NO formal coinsurance requirement. Instead it encourages maintaining at least 80% of replacement cost to keep Replacement Cost settlement, without a coinsurance penalty formula.",
+key:"BOP = no coinsurance requirement (unlike CPP)."},
+
+{cat:"BOP", q:"If a BOP's liability occurrence limit is $500,000, what are the General Aggregate and Products & Completed Operations Aggregate limits?",
+choices:["$500,000 and $500,000","$1,000,000 and $500,000","$1,000,000 and $1,000,000","$2,000,000 and $1,000,000"], correct:2,
+hint:"Both aggregates use the same multiplier — don't forget to double both.",
+explain:"Both the General Aggregate AND the Products & Completed Operations Aggregate are automatically set to 2x the occurrence limit. 2 × $500,000 = $1,000,000 for each.",
+key:"BOP: both aggregate limits = 2x the occurrence limit — symmetrical, not just one of them."},
+
+{cat:"BOP", q:"What is BOP Coverage B (Business Personal Property) valuation basis, assuming 80%+ insured to value?",
+choices:["Actual Cash Value","Replacement Cost","Agreed Value","Functional Replacement Cost"], correct:1,
+hint:"BOP is built to be policyholder-friendly — no depreciation deducted.",
+explain:"BOP Coverage B settles on Replacement Cost by default (no depreciation), as long as the insured maintains at least 80% of replacement cost. Below 80%, it drops to ACV.",
+key:"BOP Coverage B = Replacement Cost by default; drops to ACV only if under 80% insured."},
+
+// ---------------- OTHER INSURANCE (Umbrella/Excess/D&O/E&O) ----------------
+{cat:"Other Insurance", q:"What is the key advantage an Umbrella policy has over an Excess Liability policy?",
+choices:["It's always cheaper","It can broaden/fill gaps in the underlying coverage","It doesn't require an SIR","It never excludes intentional acts"], correct:1,
+hint:"One of these is 'wider AND taller,' the other is 'just taller.'",
+explain:"An Umbrella can broaden coverage and fill gaps in the underlying policy — its superpower. Excess Liability simply follows the same terms as the underlying policy, just with more money.",
+key:"Umbrella = can fill coverage gaps. Excess Liability = same terms, just a higher limit."},
+
+{cat:"Other Insurance", q:"Andre has Auto 250/500/250, Homeowners $200,000, Boatowners $300,000, and a $1,000,000 Personal Umbrella. He negligently hits a pedestrian (one person, bodily injury). Maximum payout?",
+choices:["$1,750,000 (all policies stacked)","$1,250,000 (Auto per-person limit + Umbrella)","$1,500,000 (Auto per-accident limit + Umbrella)","$1,000,000 (Umbrella only)"], correct:1,
+hint:"Only the policy that actually responds to THIS loss counts, plus the umbrella.",
+explain:"Only the Auto policy responds to this car accident (per-person BI limit = $250,000). Add the Umbrella: $250,000 + $1,000,000 = $1,250,000. Homeowners and Boatowners are irrelevant to an auto loss.",
+key:"Only stack the ONE underlying policy that applies to the loss type, plus the Umbrella."},
+
+{cat:"Other Insurance", q:"What enhances Section I (Property) coverage of a Homeowners policy?",
+choices:["Personal Umbrella","Flood insurance, Earthquake coverage, or a Personal Articles Floater","Excess Liability","Coverage E increase"], correct:1,
+hint:"Umbrella policies only touch the liability side of the house (Section II).",
+explain:"Flood, Earthquake, and a Personal Articles Floater all enhance Section I (property). Personal Umbrella enhances Section II (liability) — a common trap on the exam.",
+key:"Umbrella = Section II (liability) only. Flood/Earthquake/PAF = Section I (property)."},
+
+{cat:"Other Insurance", q:"Which statement about Excess/Surplus Lines carriers is FALSE?",
+choices:["They are not admitted/licensed in the state","They must still follow that state's insurance regulations","They offer better contracts at lower rates","They cater to high-risk clients the standard market won't write"], correct:2,
+hint:"This is an 'EXCEPT'-style trap — surplus lines are rarely a bargain.",
+explain:"Excess/Surplus Lines carriers usually charge HIGHER rates with LESS generous terms, since they take on risks nobody else wants. They are unlicensed in-state but still bound by that state's laws.",
+key:"Surplus lines = higher cost, less generous terms — NOT a better deal."},
+
+{cat:"Other Insurance", q:"Who is the typical buyer of Directors & Officers (D&O) insurance?",
+choices:["A film director","A funeral director","A corporate CEO or board member","A police officer"], correct:2,
+hint:"It has to be someone actually managing a corporation.",
+explain:"D&O protects corporate management decision-makers from personal liability tied to running the company. Film directors, funeral directors, and police officers are word-traps — unrelated to corporate governance.",
+key:"D&O = corporate executives/board members only. 'Director/officer' word-traps are common."},
+
+{cat:"Other Insurance", q:"Which professional would typically need Errors & Omissions (E&O) coverage?",
+choices:["A plumber","An attorney","A musician","A fireman"], correct:1,
+hint:"E&O protects people who give advice or professional services, not hands-on labor.",
+explain:"E&O covers professionals who give advice or specialized services — attorneys, consultants, accountants, agents. Plumbers, musicians, and firemen do hands-on/performance work, not advice-based work.",
+key:"E&O = advice/service-based professionals (attorneys, consultants, agents)."},
+
+{cat:"Other Insurance", q:"What is a Self-Insured Retention (SIR) on a Commercial Umbrella policy most similar to?",
+choices:["A deductible","Excess coverage","Coinsurance","A policy limit"], correct:0,
+hint:"It's the amount YOU pay before the umbrella responds — same concept, different name.",
+explain:"The SIR functions just like a deductible: the insured pays it out of pocket before the Umbrella kicks in, when there's no underlying coverage to respond first.",
+key:"SIR = essentially a deductible for the Umbrella policy."},
+
+// ---------------- CONTRACT LAW ----------------
+{cat:"Contract Law", q:"Which of the following is NOT one of the 5 essential elements of a valid insurance contract?",
+choices:["Offer","Consideration","Provisions","Legal Purpose"], correct:2,
+hint:"This one is just a clause INSIDE a contract — not a requirement for forming one.",
+explain:"Provisions are specific terms/clauses within a policy, but they are not a required element for contract validity. The 5 elements are: Offer, Acceptance, Consideration, Competent Parties, and Legal Purpose.",
+key:"5 elements = Offer, Acceptance, Consideration, Competent Parties, Legal Purpose. NOT Provisions."},
+
+{cat:"Contract Law", q:"Money paid out on a claim — is this considered part of 'consideration' in an insurance contract?",
+choices:["Yes, it's the insurer's main consideration","No — consideration is the premium + application answers vs. the conditional promise to pay","Only for large claims","Yes, but only for life insurance"], correct:1,
+hint:"A claim might never even happen — that can't be part of the upfront deal.",
+explain:"Consideration is the insured's premium and application statements, matched against the insurer's conditional promise to pay. A claim payout isn't consideration since it may never occur.",
+key:"Consideration = premium + application (insured) vs. promise to pay (insurer). NOT a claim payout."},
+
+{cat:"Contract Law", q:"A statement that must be absolutely, 100% true with no exceptions is called a:",
+choices:["Representation","Warranty","Affidavit","Binder"], correct:1,
+hint:"This one has zero wiggle room — no 'best of my knowledge' language allowed.",
+explain:"A Warranty must be absolutely true in every respect. A Representation only needs to be true to the best of the applicant's knowledge — a lower standard.",
+key:"Warranty = absolutely true, no exceptions. Representation = best of knowledge."},
+
+{cat:"Contract Law", q:"Which of these CAN cancel or void an insurance policy?",
+choices:["A simple representation that turns out to be slightly inaccurate","Misrepresentation of a material fact","An honest, reasonable belief that later proves wrong","Filing a claim"], correct:1,
+hint:"It has to rise above an honest mistake — and it has to matter to the underwriting decision.",
+explain:"Misrepresentation (even unintentional), concealment, and fraud can void a policy — but only if they involve a MATERIAL fact. A simple, honest representation that's slightly off is not enough on its own.",
+key:"Fraud, concealment, and misrepresentation of a MATERIAL fact can cancel a policy. Simple representations cannot."},
+
+{cat:"Contract Law", q:"Because only the insurer makes a legally enforceable promise (the insured can stop paying premiums anytime), insurance contracts are considered:",
+choices:["Aleatory","Unilateral","Conditional","Contracts of Adhesion"], correct:1,
+hint:"Only ONE side is actually bound to a promise here.",
+explain:"Unilateral means only one party (the insurer) makes a binding promise. The insured isn't legally forced to pay premiums — the insurer can only cancel, not sue for breach.",
+key:"Unilateral = only the insurer makes an enforceable promise."},
+
+{cat:"Contract Law", q:"Some policyholders pay premiums for decades with no claim, while others collect a huge payout after one premium. This unequal exchange makes insurance contracts:",
+choices:["Unilateral","Conditional","Aleatory","Personal"], correct:2,
+hint:"Think 'based on chance' — the money in and out isn't equal.",
+explain:"Aleatory means the exchange of value is unequal and based on chance. This is different from gambling, since insurance protects against a pre-existing risk of loss rather than creating a new one.",
+key:"Aleatory = unequal exchange of value, based on chance."},
+
+{cat:"Contract Law", q:"Because the insurer writes every word of the policy and the insured can't negotiate, insurance contracts are called:",
+choices:["Contracts of Adhesion","Personal Contracts","Conditional Contracts","Unilateral Contracts"], correct:0,
+hint:"'Take it or leave it' — one side controls all the wording.",
+explain:"A Contract of Adhesion is drafted entirely by the insurer; the insured can only accept or reject. Because of this, ambiguous wording is resolved in favor of the insured (Doctrine of Reasonable Expectations).",
+key:"Contract of Adhesion = insurer writes it; ambiguity resolved in favor of the insured."},
+
+{cat:"Contract Law", q:"An insurance company restoring an insured to their exact financial position before a loss — no better, no worse — describes the principle of:",
+choices:["Subrogation","Indemnity","Good Faith","Reasonable Expectations"], correct:1,
+hint:"'Make you whole' is the classic trigger phrase for this one.",
+explain:"Indemnity means restoring the insured to the same financial position as before the loss — not better off, not worse off. This is why pre-existing conditions are only restored to their prior level, not improved.",
+key:"Indemnity = 'make whole.' Restore to pre-loss position — no profit, no shortfall."},
+
+{cat:"Contract Law", q:"An insurer paying a claim, then going after the at-fault third party to recover that money, is called:",
+choices:["Indemnity","Concealment","Subrogation","Consideration"], correct:2,
+hint:"The insurer 'steps into your shoes' to chase the person who actually caused the loss.",
+explain:"Subrogation is the insurer's right to recover what it paid you from the party actually responsible for the loss.",
+key:"Subrogation = insurer recovers its payout from the at-fault third party."},
+
+// ---------------- BONDS / INSURER TYPES / RISK MANAGEMENT ----------------
+{cat:"Bonds & Risk", q:"Which insurer organization type consists of members who share each other's losses directly, managed by an attorney-in-fact?",
+choices:["Mutual","Stock","Reciprocal","Fraternal"], correct:2,
+hint:"Members literally 'reciprocate' coverage for one another.",
+explain:"A Reciprocal insurer has members who agree to insure each other, run by an attorney-in-fact. A Mutual insurer is owned by policyholders who share profits — a different defining feature (ownership, not loss-sharing).",
+key:"Reciprocal = members share losses directly. Mutual = policyholders OWN the company."},
+
+{cat:"Bonds & Risk", q:"Under a Contract Bond, the contractor is referred to as the:",
+choices:["Obligee","Surety","Guarantor","Obligor"], correct:3,
+hint:"They're the one with the OBLIGATION to perform the work.",
+explain:"The Obligor is the contractor, who must perform the work. The Obligee is the customer/project owner being protected. The Surety/Guarantor is the insurance company backing the bond.",
+key:"Contract Bond: Obligor = contractor. Obligee = customer. Surety = insurer."},
+
+{cat:"Bonds & Risk", q:"In a Fidelity Bond, the employee covered by the bond is called the:",
+choices:["Surety","Obligee","Principal","Obligor"], correct:2,
+hint:"Roles shift from Contract Bond language — this term is unique to fidelity bonds.",
+explain:"In a Fidelity Bond, the employee is the Principal (the one who could commit fraud/theft). The employer is the Obligee, and the insurer is still the Surety.",
+key:"Fidelity Bond: Principal = employee. Obligee = employer. Surety = insurer."},
+
+{cat:"Bonds & Risk", q:"Which statement about a person facing Pure Risk is TRUE?",
+choices:["He can win or lose","He can only win","He can only lose (or have no loss)","He can neither win nor lose"], correct:2,
+hint:"There's no chance of financial gain here — but a neutral (no-loss) outcome IS possible.",
+explain:"Pure risk means the outcome is either loss or no loss — there's zero chance of gain. 'Neither win nor lose' wrongly implies no outcome is possible at all; loss IS a real possibility.",
+key:"Pure Risk = can only lose (or have no loss). Never a chance to gain."},
+
+{cat:"Bonds & Risk", q:"Choosing a substantial (high) deductible is a method of:",
+choices:["Transferring risk","Retaining risk","Avoiding risk","Sharing risk"], correct:1,
+hint:"A high deductible means YOU keep more of the risk yourself.",
+explain:"A high deductible means you agree to pay more out-of-pocket before insurance responds — you're retaining more risk yourself, in exchange for a lower premium.",
+key:"High deductible = risk RETENTION, not transfer."},
+
+{cat:"Bonds & Risk", q:"What type of insurance do insurance companies use to transfer risk among themselves?",
+choices:["Remuneration","Reinsurance","Double indemnity","Subrogation"], correct:1,
+hint:"Think 'insurance for insurance companies.'",
+explain:"Reinsurance lets an insurer transfer part of its risk exposure to another insurer, protecting it from catastrophic losses. Remuneration just means payment for services — unrelated.",
+key:"Reinsurance = insurers transferring risk to other insurers."},
+
+{cat:"Bonds & Risk", q:"All of the following are valid reasons to self-insure EXCEPT:",
+choices:["Claims history shows it saves money","Risks are uninsurable elsewhere","The company cannot afford to insure its risks","The company has strong financial resources"], correct:2,
+hint:"This is an 'EXCEPT' question — look for the reason that's actually a red flag.",
+explain:"Self-insurance requires financial strength to cover your own losses. 'Can't afford insurance' is a sign of instability, not a valid reason to self-insure.",
+key:"Self-insurance requires financial strength — being unable to afford insurance is NOT a valid reason."},
+
+{cat:"Bonds & Risk", q:"A personal lines earthquake endorsement treats all aftershocks within what window as a SINGLE occurrence?",
+choices:["24 hours","48 hours","72 hours","7 days"], correct:2,
+hint:"This is the same 3-day window that shows up across multiple study guides — memorize it.",
+explain:"All earth movement (including aftershocks) within 72 hours of the initial quake counts as ONE single occurrence — meaning one deductible applies, not one per aftershock.",
+key:"Earthquake endorsement: 72 hours = a single occurrence."},
+
+{cat:"Bonds & Risk", q:"What is the minimum deductible under the regular NFIP (National Flood Insurance Program)?",
+choices:["$500","$1,000","$2,000","$2,500"], correct:1,
+hint:"It's a round number — and it's per building AND per contents, separately.",
+explain:"The NFIP regular program requires a minimum $1,000 deductible. Note also that NFIP applies separate deductibles: one for the building, one for its contents.",
+key:"NFIP minimum deductible = $1,000 (applied separately to building and contents)."},
+
+{cat:"Bonds & Risk", q:"Which statement about Umbrella vs. Excess Liability policies is TRUE?",
+choices:["Neither has a Self-Insured Retention (SIR)","Both have an SIR","An Umbrella has an SIR; Excess Liability does not","Only Excess Liability has an SIR"], correct:2,
+hint:"Only one of these two is built to fill coverage gaps — that's the one with the SIR.",
+explain:"An Umbrella policy has a Self-Insured Retention and can fill coverage gaps. An Excess Liability policy has no SIR and strictly follows the underlying policy's terms.",
+key:"Umbrella = has SIR, can fill gaps. Excess Liability = no SIR, strictly excess."},
+
+// ---------------- PERSONAL AUTO POLICY ----------------
+{cat:"Personal Auto Policy", q:"What is the correct order of Parts in a Personal Auto Policy?",
+choices:["A-Liability, B-Med Pay, C-UM/UIM, D-Damage to Your Auto","A-Med Pay, B-Liability, C-Damage to Auto, D-UM/UIM","A-UM/UIM, B-Liability, C-Med Pay, D-Damage to Auto","A-Liability, B-Damage to Auto, C-Med Pay, D-UM/UIM"], correct:0,
+hint:"Liability always comes first; damage to your own car comes last.",
+explain:"The standard order is: Part A – Liability, Part B – Medical Payments, Part C – Uninsured/Underinsured Motorists, Part D – Damage to Your Auto. This order shows up constantly on the exam.",
+key:"PAP order: A-Liability, B-Med Pay, C-UM/UIM, D-Damage to Your Auto."},
+
+{cat:"Personal Auto Policy", q:"Under Part A (Liability) of a PAP, which of the following is typically EXCLUDED?",
+choices:["Bodily injury to a pedestrian the insured hits","Property damage to another car in an accident","Damage the insured intentionally causes","Bodily injury to a passenger in the insured's car"], correct:2,
+hint:"Liability insurance is for accidents — not things you did on purpose.",
+explain:"Intentional acts are excluded from Part A Liability coverage, just like most liability policies. Ordinary negligent bodily injury and property damage to third parties (pedestrians, other cars, passengers) are exactly what Part A is designed to cover.",
+key:"Part A Liability excludes intentional acts — it only covers negligent/accidental harm to others."},
+
+{cat:"Personal Auto Policy", q:"Under Part D (Damage to Your Auto), which loss is covered under Collision but NOT Other Than Collision (Comprehensive)?",
+choices:["Hitting another vehicle","Hail damage","Theft of the vehicle","A tree falling on the car"], correct:0,
+hint:"Collision is specifically about your car hitting — or being hit by — another object or vehicle.",
+explain:"Collision coverage applies when your car hits (or is hit by) another vehicle or object. Hail, theft, and falling objects are all Other Than Collision (Comprehensive) perils, not Collision.",
+key:"Collision = your car hits something. Hail/theft/falling objects = Other Than Collision (Comprehensive)."},
+
+{cat:"Personal Auto Policy", q:"Under Part D, is road damage to tires (e.g., hitting a pothole) covered under Other Than Collision?",
+choices:["Yes, always covered","No — it's specifically excluded under Other Than Collision","Only with a special tire endorsement","Yes, but only up to $500"], correct:1,
+hint:"Simple tire damage from road hazards is a specific exclusion in Part D.",
+explain:"Road damage to tires is specifically excluded under the Other Than Collision (comprehensive) portion of a Personal Auto Policy, Part D.",
+key:"Tire road damage = excluded under Other Than Collision (Part D)."},
+
+{cat:"Personal Auto Policy", q:"Uninsured Motorist (UM) coverage pays when:",
+choices:["The insured is at fault in an accident","The insured is hit by a driver with no liability insurance at all","The insured's own car is stolen","The insured hits a parked, unoccupied vehicle"], correct:1,
+hint:"UM steps in when the OTHER driver has nothing to pay with.",
+explain:"UM coverage pays the insured when injured by an at-fault driver who carries NO liability insurance. Underinsured Motorist (UIM) covers the gap when the at-fault driver has insurance, but not enough.",
+key:"UM = other driver has NO insurance. UIM = other driver has insurance, but not enough."},
+
+{cat:"Personal Auto Policy", q:"Personal Injury Protection (PIP) is best described as:",
+choices:["Liability coverage for injuries the insured causes to others","No-fault coverage paying the insured's own medical expenses and lost wages after an auto accident","Coverage for damage to the insured's own vehicle","A liability limit increase endorsement"], correct:1,
+hint:"PIP pays YOUR bills regardless of who caused the accident — a no-fault auto coverage.",
+explain:"PIP is no-fault coverage that pays the insured's own medical expenses, lost wages, and related costs after an auto accident, regardless of who was at fault. It's required in some 'no-fault' states.",
+key:"PIP = no-fault coverage for the insured's own medical bills and lost wages."},
+
+{cat:"Personal Auto Policy", q:"Does a Personal Auto Policy cover a temporary substitute vehicle (e.g., a rental while your car is being repaired)?",
+choices:["No, you must buy separate rental coverage","Yes — the insured's own policy covers a non-owned temporary substitute auto","Only if the vehicle owner's policy responds first","No, liability only extends to the vehicle's owner"], correct:1,
+hint:"Your own policy follows you onto a substitute vehicle while your car is out of commission.",
+explain:"The insured's own Personal Auto Policy provides coverage for a non-owned temporary substitute vehicle. Liability does not extend to the actual owner of that substitute vehicle.",
+key:"Temporary substitute auto = covered by the INSURED'S OWN policy, not the vehicle owner's."},
+
+{cat:"Personal Auto Policy", q:"What is the insured's FIRST duty after an auto accident or loss?",
+choices:["Contract a repair shop immediately","Give prompt notice of the loss to the insurer","Hire an attorney","Wait for the other driver's insurer to contact them"], correct:1,
+hint:"Before anything else happens, the insurer needs to know a loss occurred.",
+explain:"Prompt notice to the insurer is the first and most basic duty after a loss. Other duties include cooperating with the investigation, protecting the vehicle from further damage, and submitting to an examination under oath if asked.",
+key:"First duty after a loss = give prompt notice to the insurer."},
+
+// ---------------- COMMERCIAL GENERAL LIABILITY (CGL) ----------------
+{cat:"CGL", q:"Under a CGL policy, which coverage part responds to a customer's slander/libel claim in an advertisement?",
+choices:["Coverage A — Bodily Injury & Property Damage","Coverage B — Personal & Advertising Injury","Coverage C — Medical Payments","None — CGL never covers advertising"], correct:1,
+hint:"This part covers non-physical harm caused by ads — copyright issues, slander, privacy violations.",
+explain:"CGL Coverage B (Personal & Advertising Injury) covers non-physical harm from advertising: slander/libel, copyright or trademark infringement in an ad, and privacy violations. Coverage A is bodily injury/property damage; Coverage C is no-fault medical payments.",
+key:"CGL: A = Bodily Injury/Property Damage. B = Personal & Advertising Injury. C = Medical Payments (no-fault)."},
+
+{cat:"CGL", q:"On a CGL policy, what's the key difference between the Occurrence limit and the General Aggregate limit?",
+choices:["Occurrence is the total yearly cap; Aggregate resets per claim","Occurrence is the max per single claim; Aggregate is the total yearly cap, reduced by every claim","They're the same thing, just different names","Aggregate only applies to auto claims"], correct:1,
+hint:"One number caps a single incident. The other caps the whole policy period.",
+explain:"The Occurrence limit is the maximum paid per single claim/event. The General Aggregate limit is the total cap for the entire policy year, and it gets reduced every time a claim is paid — it doesn't reset.",
+key:"Occurrence = max per single claim. Aggregate = total yearly cap that depletes with each claim."},
+
+{cat:"CGL", q:"Under an 'Occurrence' form CGL policy, when is coverage triggered?",
+choices:["When the claim is filed, regardless of when the injury happened","When the injury/damage actually happens during the policy period, even if the claim is filed later","Only if reported within 30 days","Never — occurrence forms don't exist for CGL"], correct:1,
+hint:"Occurrence forms look at WHEN the harm happened, not when the paperwork was filed.",
+explain:"An Occurrence policy is triggered by when the injury or damage actually took place, even if the claim is reported years later. This is the opposite of a Claims-Made policy, which is triggered by when the claim is filed.",
+key:"Occurrence = triggered by when the injury happened. Claims-Made = triggered by when the claim is filed."},
+
+{cat:"CGL", q:"A Claims-Made CGL policy is triggered by:",
+choices:["The date of the injury, regardless of when it's reported","The date the claim is made against the insured, provided it falls within the policy period (or extended reporting period)","The date the policy was purchased","The date the premium was paid in full"], correct:1,
+hint:"This form cares about WHEN the paperwork/claim shows up, not when the injury happened.",
+explain:"Claims-Made coverage is triggered when the claim is actually made against the insured, as long as that falls within the policy period or an extended reporting period — even if the underlying injury happened earlier.",
+key:"Claims-Made = triggered by when the claim is filed, not when the injury occurred."},
+
+{cat:"CGL", q:"Which CGL exposure covers a contractor's liability for injuries arising AFTER a completed job (e.g., a faulty repair causes harm weeks later)?",
+choices:["Premises and Operations","Products and Completed Operations","Contractual Liability","Personal and Advertising Injury"], correct:1,
+hint:"This covers harm from work already finished — after the crew has left the job site.",
+explain:"Products and Completed Operations covers liability arising from a finished job or a sold product, after the insured's work is done. Premises and Operations covers liability while the insured is actively working or someone is on the insured's premises.",
+key:"Products & Completed Operations = liability AFTER the job/product is finished and delivered."},
+
+{cat:"CGL", q:"Which CGL exposure covers liability for an injury that occurs while the insured is actively performing work on a job site?",
+choices:["Products and Completed Operations","Premises and Operations","Contractual Liability","Personal and Advertising Injury"], correct:1,
+hint:"This one covers 'while the work is happening,' not after it's done.",
+explain:"Premises and Operations covers liability arising while the business is actively operating — including injuries that occur on the insured's premises or while the insured's crew is actively performing work.",
+key:"Premises & Operations = liability WHILE the insured is actively working or on their premises."},
+
+{cat:"CGL", q:"When an insured contractually agrees to assume another party's liability (e.g., in a lease or service contract), this exposure is called:",
+choices:["Products and Completed Operations","Contractual Liability","Premises and Operations","Personal and Advertising Injury"], correct:1,
+hint:"This is liability the insured takes on voluntarily, through a signed agreement.",
+explain:"Contractual Liability arises when the insured agrees, by contract, to assume someone else's liability — common in leases and service agreements. CGL typically covers this under an 'insured contract' provision.",
+key:"Contractual Liability = liability voluntarily assumed through a signed contract/agreement."},
+
+// ---------------- WORKERS' COMPENSATION ----------------
+{cat:"Workers' Compensation", q:"Workers' Compensation is best described as what type of liability system?",
+choices:["Fault-based — the employee must prove employer negligence","No-fault — benefits are paid regardless of who caused the injury","Optional for all employers","Only covers injuries occurring off the job site"], correct:1,
+hint:"The employee doesn't have to prove the employer did anything wrong.",
+explain:"Workers' Compensation is a no-fault system — an injured employee receives benefits for a work-related injury regardless of who was at fault, in exchange for giving up the right to sue the employer directly (in most cases).",
+key:"Workers' Comp = no-fault. Benefits paid regardless of fault; employee generally can't sue the employer."},
+
+{cat:"Workers' Compensation", q:"Which of these is a typical Workers' Compensation benefit category?",
+choices:["Medical benefits, disability income, rehabilitation, and death benefits","Only medical benefits","Only lost wages","Property damage reimbursement"], correct:0,
+hint:"Think broadly — it covers more than just the hospital bill.",
+explain:"Workers' Comp typically provides four benefit types: medical benefits, disability income (wage replacement), rehabilitation benefits, and death benefits for dependents if the injury is fatal.",
+key:"Workers' Comp benefits = Medical + Disability Income + Rehabilitation + Death Benefits."},
+
+{cat:"Workers' Compensation", q:"An injury that leaves a worker permanently unable to work in ANY occupation is classified as:",
+choices:["Temporary Total Disability","Temporary Partial Disability","Permanent Partial Disability","Permanent Total Disability"], correct:3,
+hint:"Both words in the classification matter here: it's permanent, and it's total.",
+explain:"Permanent Total Disability means the worker can never return to any gainful occupation. Permanent Partial affects only part of their ability to work; Temporary classifications imply eventual recovery.",
+key:"Permanent Total Disability = never able to work again, in any occupation."},
+
+{cat:"Workers' Compensation", q:"Workers' Compensation rates for a business are primarily developed based on:",
+choices:["The business owner's personal credit score","Job classification codes reflecting the riskiness of the work performed","The number of company vehicles","The business's advertising budget"], correct:1,
+hint:"Rating is tied to what kind of WORK the employees actually do.",
+explain:"Workers' Comp rating relies heavily on job classification codes, which group employees by the type of work performed and its associated risk level — a roofer's classification carries very different risk than an office worker's.",
+key:"Workers' Comp rating = based on job classification codes tied to occupational risk."},
+
+// ---------------- AGENCY, PRODUCERS & ADMITTED INSURERS ----------------
+{cat:"Agency & Producers", q:"An insurer that is licensed AND meets the state insurance department's standards to do business in that state is called:",
+choices:["Licensed","Admitted","Permitted","Approved"], correct:1,
+hint:"It's a specific legal term, not just the most familiar-sounding word.",
+explain:"'Admitted' means the insurer is authorized to do business in the state AND meets the insurance department's standards. 'Licensed' alone is too generic and is usually the wrong-answer trap here.",
+key:"Admitted = licensed by the state AND meets department standards. 'Licensed' alone is a common trap."},
+
+{cat:"Agency & Producers", q:"A producer's specific powers, spelled out in the written agency agreement, are called:",
+choices:["Implied authority","Apparent authority","Express authority","Inherent authority"], correct:2,
+hint:"This is the authority that's literally written down in the contract.",
+explain:"Express authority is the specific power explicitly written into the agency agreement. Implied authority covers the smaller tasks needed to carry out express authority; Apparent authority comes from how the insurer presents the producer to the public.",
+key:"Express authority = written in the agreement. Implied = necessary incidental tasks. Apparent = public perception."},
+
+{cat:"Agency & Producers", q:"A member of the public assumes a producer can do something because of the insurer's signage/forms — even though it's not in any agreement. This is:",
+choices:["Express authority","Apparent authority","Inherent authority","Implied authority"], correct:1,
+hint:"The word 'assumes' by an outside party is the giveaway for this type of authority.",
+explain:"Apparent authority is created by how the insurer presents the producer to the public (signage, forms, business cards) — not by a written agreement. 'The public assumes...' is the classic trigger phrase.",
+key:"'The public assumes...' = Apparent authority, not express."},
+
+{cat:"Agency & Producers", q:"An insurer incorporated in Pennsylvania, doing business in Pennsylvania, is classified as what type of insurer there?",
+choices:["Foreign","Alien","Domestic","Admitted only"], correct:2,
+hint:"Same state where it was chartered — think 'at home.'",
+explain:"A Domestic insurer operates in the same state where it was incorporated/chartered. A Foreign insurer is incorporated in another U.S. state; an Alien insurer is incorporated outside the U.S.",
+key:"Domestic = same state as incorporation. Foreign = another U.S. state. Alien = outside the U.S."},
+
+// ---------------- COMMERCIAL PROPERTY EXTRAS ----------------
+{cat:"Commercial Property Extras", q:"A Value Reporting Form is used when:",
+choices:["A business's inventory value fluctuates significantly throughout the year","The building is always vacant","The insured wants a flat, unchanging limit","The policy has no coinsurance clause"], correct:0,
+hint:"Think of a business whose stock levels swing seasonally (like a retailer before the holidays).",
+explain:"A Value Reporting Form is used when a business's personal property/inventory value fluctuates during the year. The insured periodically reports actual values so the policy limit and premium reflect real exposure, rather than using one flat number all year.",
+key:"Value Reporting Form = for businesses with fluctuating inventory value (report values periodically)."},
+
+{cat:"Commercial Property Extras", q:"Which Commercial Property Cause of Loss form is the MINIMUM required to cover theft?",
+choices:["Basic","Broad","Special","None cover theft"], correct:2,
+hint:"Unlike homeowners forms, theft is a 'premium' peril in commercial lines.",
+explain:"In commercial property, theft is only covered under the Special (open perils) form. Neither Basic nor Broad cover theft — this differs from homeowners, where even HO-1 (Basic) covers theft.",
+key:"Commercial Property theft coverage: Special form ONLY. Basic and Broad do NOT cover theft."},
+
+{cat:"Commercial Property Extras", q:"The Building and Personal Property Coverage Form is best described as:",
+choices:["Coverage exclusively for liability exposures","The core commercial property form covering the building and/or business personal property","A form only used for farms","A form that replaces the need for a Cause of Loss form"], correct:1,
+hint:"This is the foundational property form — it still needs a Cause of Loss form attached to define perils.",
+explain:"The Building and Personal Property Coverage Form is the base commercial property form, covering the building and/or business personal property. It works together with a separate Cause of Loss form (Basic/Broad/Special) that defines which perils are actually covered.",
+key:"BPP Coverage Form = the base property form; a Cause of Loss form defines which perils apply."},
+
+// ---------------- HOMEOWNERS ADDITIONAL COVERAGES & EXCLUSIONS ----------------
+{cat:"HO Additional Coverages", q:"Under Section I of a Homeowners policy, which of these is an 'Additional Coverage' (built-in, beyond A–D)?",
+choices:["Debris removal following a covered loss","A higher Coverage E limit","A Personal Articles Floater","Workers' Compensation for a housekeeper"], correct:0,
+hint:"This one comes standard, tied to a covered property loss — not something you buy separately.",
+explain:"Debris removal following a covered loss is a built-in Additional Coverage under Section I. A Personal Articles Floater and increased Coverage E are separate purchases/endorsements, not automatic Additional Coverages.",
+key:"Debris removal = an automatic Section I Additional Coverage after a covered loss."},
+
+{cat:"HO Additional Coverages", q:"Which of these is generally EXCLUDED under Section I (Property Coverage) of a Homeowners policy?",
+choices:["Fire damage to the dwelling","Wind damage to a fence (Coverage B)","Flood damage to the dwelling","Theft of personal property (HO-3)"], correct:2,
+hint:"This is one of the 'big four' perils that always needs a separate policy.",
+explain:"Flood is a universal exclusion under Section I property coverage — along with earthquake, war, and nuclear hazard. These require a separate policy (like NFIP flood insurance) or endorsement.",
+key:"Flood is always excluded under Section I unless a separate flood policy is purchased."},
+
+{cat:"HO Additional Coverages", q:"A Personal Articles Floater / Scheduled Personal Property endorsement is used to:",
+choices:["Increase the overall Coverage C limit only","Schedule specific high-value items (jewelry, cameras, instruments) for their full appraised value, without Coverage C sublimits","Replace the need for Coverage C entirely","Cover pets"], correct:1,
+hint:"This is how you get AROUND the Coverage C special limits, like the $1,500 jewelry cap.",
+explain:"Scheduling an item on a Personal Articles Floater lets it be insured for its full appraised value, avoiding Coverage C's special sublimits (like the $1,500 jewelry theft cap) and often removing the deductible for that item.",
+key:"Scheduling on a PAF = full stated value, bypassing Coverage C's special sublimits."},
+
+// ---------------- GENERAL CONCEPTS: NEGLIGENCE, LOSS VALUATION, DECLARATIONS ----------------
+{cat:"General Concepts Extra", q:"Which of these is one of the required elements of a negligent act?",
+choices:["Intent to cause harm","A legal duty of care that was breached, causing damages","A signed contract between the parties","Proof of malice"], correct:1,
+hint:"Negligence is about carelessness, not intent — but a duty must exist and be breached.",
+explain:"The elements of negligence are: a legal duty of care, a breach of that duty, causation, and resulting damages. Negligence does not require intent to harm — that would be an intentional tort instead.",
+key:"Negligence = duty + breach + causation + damages. No intent to harm required."},
+
+{cat:"General Concepts Extra", q:"What's the difference between Actual Cash Value (ACV) and Replacement Cost (RC) at time of loss?",
+choices:["ACV = Replacement Cost minus depreciation; RC = cost to replace with new, like-kind property","They are the same calculation","ACV is always higher than RC","RC always requires a coinsurance penalty"], correct:0,
+hint:"One accounts for wear and tear; the other doesn't.",
+explain:"ACV = Replacement Cost − Depreciation, reflecting what the item is worth today. Replacement Cost pays to replace the item new, with no deduction for depreciation — but usually requires an RC endorsement or meeting an insure-to-value threshold.",
+key:"ACV = Replacement Cost − Depreciation. RC = full cost to replace new, no depreciation."},
+
+{cat:"General Concepts Extra", q:"The Declarations page of a policy typically includes all of the following EXCEPT:",
+choices:["Named insured and address","Policy period","Limits of insurance","The full text of all policy exclusions"], correct:3,
+hint:"Exclusions live in a different part of the policy — the Declarations page is more like a summary cover sheet.",
+explain:"The Declarations page summarizes the specific details of a policy — named insured, address, policy period, and limits. The full exclusion language lives in the Insuring Agreement/Exclusions sections, not the Declarations.",
+key:"Declarations = summary info (named insured, dates, limits). Exclusions are detailed elsewhere in the policy."},
+
+{cat:"General Concepts Extra", q:"'Compensatory' damages, as opposed to 'punitive' damages, are intended to:",
+choices:["Punish the wrongdoer for egregious conduct","Reimburse the injured party for actual losses suffered","Reward the plaintiff beyond their actual loss","Cover only pain and suffering"], correct:1,
+hint:"This type of damages is about making the injured party whole — not about punishment.",
+explain:"Compensatory damages reimburse the injured party for actual losses (medical bills, lost wages, property damage). Punitive damages, by contrast, are meant to punish the defendant for particularly bad conduct and go beyond actual losses.",
+key:"Compensatory = reimburses actual loss. Punitive = punishes the wrongdoer, beyond actual loss."},
+
+// ---------------- FARM & INLAND MARINE ----------------
+{cat:"Farm & Inland Marine", q:"Which of these requires a completely SEPARATE policy and is NOT covered under a standard Farm policy?",
+choices:["Farm structures and barns","Mobile agricultural machinery","Growing crops","Household personal property (farmer's home belongings)"], correct:2,
+hint:"Everything farm-related is covered EXCEPT the thing actually growing in the ground.",
+explain:"Growing crops require a separate Crop Insurance Policy. Farm structures, mobile machinery, loss of use, and household personal property are all covered under a standard Farm policy.",
+key:"Growing crops = need a separate Crop Insurance Policy, NOT covered by the Farm policy."},
+
+{cat:"Farm & Inland Marine", q:"A bulldozer used on and off a job site needs which type of coverage?",
+choices:["Commercial Property (on-premises only)","Commercial Auto","Inland Marine — it follows the property everywhere","Equipment Breakdown"], correct:2,
+hint:"This coverage 'follows the stuff' no matter where it goes — on-site, off-site, in transit.",
+explain:"Inland Marine covers property both on AND off premises — the right fit for equipment like bulldozers that move between job sites. Commercial Property is on-premises only, and Commercial Auto covers vehicles, not heavy equipment.",
+key:"Bulldozer on AND off premises = Inland Marine, not Commercial Property or Commercial Auto."},
+
+{cat:"Farm & Inland Marine", q:"What is the main PURPOSE of Commercial Inland Marine coverage?",
+choices:["To cover only ocean shipping","To cover property that is mobile or 'floats' between locations, both on and off the insured's premises","To replace the need for a General Liability policy","To cover employee dishonesty"], correct:1,
+hint:"Despite the name 'Marine,' this isn't about boats — it's about property that moves around.",
+explain:"Commercial Inland Marine exists to cover property that moves — construction equipment, contractor's tools, property in transit, or property held at changing locations — filling the gap left by standard (on-premises-only) Commercial Property coverage.",
+key:"Inland Marine purpose = cover mobile property, wherever it goes, not just at one fixed location."},
+
+// ---------------- CALCULATIONS & REAL-WORLD SCENARIOS ----------------
+{cat:"Calculations & Scenarios", q:"Ann's complete set of 50 collectible drawings is worth $100,000. A fire destroys 10 of them; the remaining 40 are now worth $25,000. Under the Pair & Set clause, what does she collect?",
+choices:["$25,000 (value of destroyed pieces alone)","$75,000 (value before loss minus value after loss)","$100,000 (full set value)","$10,000 (per piece average)"], correct:1,
+hint:"You're paid for how much the WHOLE set lost in value — not the individual missing pieces.",
+explain:"Pair & Set clause payment = Value Before Loss − Value After Loss = $100,000 − $25,000 = $75,000. This accounts for the loss in value to the whole set, not just the destroyed items' standalone worth.",
+key:"Pair & Set Clause: Payment = Value Before Loss − Value After Loss."},
+
+{cat:"Calculations & Scenarios", q:"Ned prepaid $10,000 for a full year business policy and cancels on July 1 (181 days used, 184 remaining). Roughly what pro rata refund does he get?",
+choices:["About $2,500","About $5,000","About $6,000","About $8,000"], correct:1,
+hint:"About half the year is left — so about half the money comes back.",
+explain:"184 days remain out of 365 (≈50.34%). 50.34% of $10,000 ≈ $5,034, rounded to about $5,000. Roughly half the year left means roughly half the premium is refunded.",
+key:"Pro rata refund ≈ (days remaining ÷ 365) × premium paid."},
+
+{cat:"Calculations & Scenarios", q:"A house with an attached garage is insured for $100,000 total under Coverage A. How much coverage applies to the garage?",
+choices:["10% of Coverage A, since it's a structure","The full $100,000 — an attached garage is part of the dwelling","It needs a separate Coverage B limit","Nothing, garages are always separate"], correct:1,
+hint:"'Attached' means it's treated as part of the main structure, not a separate building.",
+explain:"An attached garage is considered part of the main dwelling structure (Coverage A), since it's permanently connected to the house. The full Coverage A limit applies — it doesn't get a separate percentage like a detached structure would under Coverage B.",
+key:"Attached garage = part of Coverage A (the dwelling), not a separate Coverage B limit."},
+
+{cat:"Calculations & Scenarios", q:"Under the National Flood Insurance Program (NFIP), how are deductibles applied to a loss involving both the building and its contents?",
+choices:["One combined deductible for everything","Two separate deductibles — one for the building, one for the contents","No deductible applies to contents","A single deductible, doubled only for commercial buildings"], correct:1,
+hint:"NFIP treats the structure and your belongings as two separate things.",
+explain:"NFIP applies deductibles separately: one for damage to the building (structure) and a second, separate deductible for damage to the contents/personal property inside.",
+key:"NFIP = TWO separate deductibles — one for building, one for contents."},
+
+{cat:"Calculations & Scenarios", q:"A building is insured for less than 80% of its replacement cost (underinsured) and suffers an $8,000 ACV loss with a $500 deductible. How is this paid?",
+choices:["$8,000 flat, no deductible applied","$7,500 (ACV − deductible, since it's below the 80% threshold)","Full replacement cost, no reduction","Denied entirely for being underinsured"], correct:1,
+hint:"Below the 80% insure-to-value threshold, you settle on ACV, then subtract the deductible.",
+explain:"Since the building is insured below 80% of replacement cost, the loss is settled on an Actual Cash Value basis. $8,000 ACV − $500 deductible = $7,500 payout.",
+key:"Underinsured (below 80%) → settle on ACV, then subtract the deductible."},
+
+{cat:"Calculations & Scenarios", q:"Which auto exclusion applies to a Personal Auto Policy but NOT to a Business Auto Policy?",
+choices:["Intentional damage","Racing/speed contests","Using the vehicle in an auto business (e.g., rideshare, delivery, taxi)","Injuries to employees (workers' comp territory)"], correct:2,
+hint:"Business Auto Policies are built specifically to cover exactly this kind of use.",
+explain:"The 'auto business use' exclusion (taxi, delivery, rideshare, repair shop use) applies to Personal Auto Policies, since they aren't priced for commercial risk. Business Auto Policies are designed to cover exactly this kind of business use.",
+key:"Auto-business-use exclusion is a Personal Auto Policy thing — Business Auto is made for that exact use."},
+];
+
+// ---- state ----
+let filtered = QUESTIONS;
+let idx = 0;
+let answered = new Array(QUESTIONS.length).fill(null); // stores chosen index or null
+let activeCat = "All";
+
+const cats = ["All", ...Array.from(new Set(QUESTIONS.map(q=>q.cat)))];
+
+function buildChips(){
+  const chipWrap = document.getElementById('chips');
+  chipWrap.innerHTML = '';
+  cats.forEach(c=>{
+    const b = document.createElement('button');
+    b.className = 'chip' + (c===activeCat ? ' active' : '');
+    b.textContent = c;
+    b.onclick = () => { activeCat = c; applyFilter(); };
+    chipWrap.appendChild(b);
+  });
+}
+
+function applyFilter(){
+  filtered = activeCat === "All" ? QUESTIONS : QUESTIONS.filter(q=>q.cat===activeCat);
+  idx = 0;
+  buildChips();
+  render();
+}
+
+function scoreInfo(){
+  let correctCount = 0, attempted = 0;
+  filtered.forEach(q=>{
+    const globalIdx = QUESTIONS.indexOf(q);
+    if(answered[globalIdx] !== null){
+      attempted++;
+      if(answered[globalIdx] === q.correct) correctCount++;
+    }
+  });
+  return {correctCount, attempted, total: filtered.length};
+}
+
+function updateStrip(){
+  document.getElementById('posLabel').textContent = Math.min(idx+1, filtered.length);
+  document.getElementById('totalLabel').textContent = filtered.length;
+  const s = scoreInfo();
+  document.getElementById('scoreLabel').textContent = `${s.correctCount} / ${s.attempted}`;
+  const pct = filtered.length ? Math.round(((idx)/(filtered.length))*100) : 0;
+  document.getElementById('trackFill').style.width = pct + '%';
+}
+
+function render(){
+  updateStrip();
+  const ticket = document.getElementById('ticket');
+
+  if(filtered.length === 0){
+    ticket.innerHTML = `<p style="text-align:center;">No questions in this category.</p>`;
+    return;
+  }
+
+  if(idx >= filtered.length){
+    renderResults();
+    return;
+  }
+
+  const q = filtered[idx];
+  const globalIdx = QUESTIONS.indexOf(q);
+  const chosen = answered[globalIdx];
+  const letters = ['A','B','C','D'];
+
+  let choicesHtml = q.choices.map((c,i)=>{
+    let cls = 'choice';
+    if(chosen !== null){
+      cls += ' locked';
+      if(i === q.correct) cls += ' correct';
+      else if(i === chosen) cls += ' wrong';
+      else cls += ' dim';
+    }
+    return `<button class="${cls}" data-i="${i}" onclick="selectChoice(${globalIdx}, ${i})">
+      <span class="letter">${letters[i]}</span><span>${c}</span>
+    </button>`;
+  }).join('');
+
+  let explainHtml = '';
+  if(chosen !== null){
+    const isRight = chosen === q.correct;
+    explainHtml = `
+      <div class="explain show">
+        <div class="verdict ${isRight?'right':'wrong'}">${isRight ? '✓ Correct' : '✗ Not quite'}</div>
+        <p>${q.explain}</p>
+        <div class="key-takeaway">KEY: ${q.key}</div>
+      </div>`;
+  }
+
+  ticket.innerHTML = `
+    <div class="q-meta"><span class="q-cat">${q.cat}</span><span class="q-num">Q${idx+1}</span></div>
+    <div class="q-text">${q.q}</div>
+    <div class="choices">${choicesHtml}</div>
+    <div class="hint-row">
+      <button class="hint-btn" onclick="toggleHint()">💡 Need a hint?</button>
+      <div class="hint-box" id="hintBox">${q.hint}</div>
+    </div>
+    ${explainHtml}
+    <div class="nav-row">
+      <button class="nav-btn ghost" onclick="prevQ()" ${idx===0 ? 'disabled':''}>← Back</button>
+      <button class="nav-btn" onclick="nextQ()" ${chosen===null ? 'disabled':''}>${idx===filtered.length-1 ? 'See Results' : 'Next →'}</button>
+    </div>
+  `;
+}
+
+function toggleHint(){
+  document.getElementById('hintBox').classList.toggle('show');
+}
+
+function selectChoice(globalIdx, choiceIdx){
+  if(answered[globalIdx] !== null) return; // already answered, locked
+  answered[globalIdx] = choiceIdx;
+  render();
+}
+
+function nextQ(){
+  if(idx < filtered.length){ idx++; render(); }
+}
+function prevQ(){
+  if(idx > 0){ idx--; render(); }
+}
+
+function renderResults(){
+  const s = scoreInfo();
+  const pct = s.total ? Math.round((s.correctCount/s.total)*100) : 0;
+  let msg = "Solid work — review the misses and go again.";
+  if(pct >= 90) msg = "Exam-ready. That's a licensing-exam score.";
+  else if(pct >= 75) msg = "Close. Nail down the categories below and you're there.";
+  else if(pct < 50) msg = "Rough round — this is exactly what drilling is for. Go again.";
+
+  // per-category breakdown
+  const catStats = {};
+  filtered.forEach(q=>{
+    const gi = QUESTIONS.indexOf(q);
+    if(!catStats[q.cat]) catStats[q.cat] = {right:0, total:0};
+    catStats[q.cat].total++;
+    if(answered[gi] === q.correct) catStats[q.cat].right++;
+  });
+
+  let rows = Object.entries(catStats).map(([cat,st])=>{
+    return `<div class="breakdown-row"><span>${cat}</span><span>${st.right} / ${st.total}</span></div>`;
+  }).join('');
+
+  document.getElementById('ticket').innerHTML = `
+    <div class="results">
+      <div class="kicker" style="color:#7a5f22;">Session Complete</div>
+      <div class="big">${s.correctCount}/${s.total}</div>
+      <div class="msg">${msg}</div>
+      <div class="breakdown">${rows}</div>
+      <button class="nav-btn" onclick="restart()">Drill Again</button>
+    </div>
+  `;
+  document.getElementById('trackFill').style.width = '100%';
+}
+
+function restart(){
+  filtered.forEach(q=>{
+    const gi = QUESTIONS.indexOf(q);
+    answered[gi] = null;
+  });
+  idx = 0;
+  render();
+}
+
+buildChips();
+render();
+</script>
+</body>
+</html>
